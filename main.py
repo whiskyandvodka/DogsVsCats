@@ -1,5 +1,4 @@
 import os.path
-
 import models
 import torch as t
 from config import opt
@@ -51,7 +50,7 @@ def train(**kwargs):
         loss_meter.reset()
         confusion_matrix.reset()
 
-        for ii, (data, label) in enumerate(train_dataloader):
+        for ii, (data, label) in tqdm(enumerate(train_dataloader)):
 
             # 训练模型参数
             input = data.to(opt.device)
@@ -78,5 +77,106 @@ def train(**kwargs):
         model.save()
 
         # 计算验证集上的指标以及可视化
+        val_cm, val_accuracy = val(model, val_dataloader)
+        vis.plot('val_accuracy', val_accuracy)
+        vis.log("epoch:{epoch}, lr={lr}, loss:{loss}, train_cm:{train_cm}, val_cm:{val_cm}".format(
+            epoch=epoch, loss=loss_meter.value()[0], train_cm=str(confusion_matrix.value()), lr=lr,
+            val_cm=str(val_cm.value())
+        ))
+
+        # 如果损失不再下降，则降低学习率
+        if loss_meter.value()[0] > previous_loss:
+            lr = lr * opt.lr_decay
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
+
+        previous_loss = loss_meter.value()[0]
 
 
+@t.no_grad()
+def val(model, dataloder):
+    """
+    计算模型在验证集上的准确率等信息，用于辅助训练
+    :param model:
+    :param dataloder:
+    :return:
+    """
+    # 将模型设为验证模式
+    model.eval()
+
+    confusion_matrix = meter.ConfusionMeter(2)
+    for ii, (val_input, label) in tqdm(enumerate(dataloder)):
+        val_input = val_input.to(opt.device)
+        score = model(val_input)
+        confusion_matrix.add(score.detach().squeeze(), label.long())
+
+    # 将模型恢复为训练模式
+    model.train()
+
+    cm_value = confusion_matrix.value()
+    accuracy = 100. * (cm_value[0][0] + cm_value[1][1]) / (cm_value.sum())
+    return confusion_matrix, accuracy
+
+
+@t.no_grad()
+def test(**kwargs):
+    """
+    测试（inference)
+    :param kwargs:
+    :return:
+    """
+    opt.parse(kwargs)
+
+    # 模型加载
+    model = getattr(models, opt.model)().eval
+    if opt.load_model_path:
+        model.load(opt.load_model_path)
+    if opt.use_gpu:
+        model.cuda()
+
+    # 数据加载
+    test_data = DogCat(opt.test_data_root, mode="test")
+    test_dataloader = DataLoader(test_data, batch_size=opt.batch_size, shuffle=False, num_workers=opt.num_workers)
+
+    results = []
+    for ii, (data, path) in tqdm(enumerate(test_dataloader)):
+        input = data.to(opt.device)
+        score = model(input)
+        # 计算每个样本属于狗的概率
+        probability = t.nn.functional.softmax(score)[:, 1].data.tolist()
+        batch_results = [(path_, probability_) for path_, probability_ in zip(path, probability)]
+        results += batch_results
+    write_csv(results, opt.result_file)
+    return results
+
+
+def write_csv(results,file_name):
+    import csv
+    with open(file_name,'w') as f:
+        writer = csv.writer(f)
+        writer.writerow(['id','label'])
+        writer.writerows(results)
+
+
+def help():
+    """
+    打印帮助的信息： python file.py help
+    """
+
+    print("""
+    usage : python file.py <function> [--args=value]
+    <function> := train | test | help
+    example: 
+            python {0} train --env='env0701' --lr=0.01
+            python {0} test --dataset='path/to/dataset/root/'
+            python {0} help
+    avaiable args:""".format(__file__))
+
+    from inspect import getsource
+    source = (getsource(opt.__class__))
+    print(source)
+
+
+if __name__ == '__main__':
+    import fire
+    fire.Fire()
