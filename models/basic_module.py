@@ -27,8 +27,23 @@ class BasicModule(t.nn.Module):
         if name is None:
             prefix = 'checkpoints/' + self.model_name + '-'
             name = time.strftime(prefix + '%m%d_%H:%M:%S.pth')
-            t.save(self.state_dict(), name)
-            return name
+        t.save(self.state_dict(), name)
+        return name
 
+    def get_optimizer(self, lr, weight_decay):
+        return t.optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
+
+
+class Flat(t.nn.Module):
+    """
+    把输入reshape成（batch_size,dim_length）
+    """
+
+    def __init__(self):
+        super(Flat, self).__init__()
+        #self.size = size
+
+    def forward(self, x):
+        return x.view(x.size(0), -1)
 
 

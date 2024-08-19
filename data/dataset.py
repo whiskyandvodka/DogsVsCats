@@ -35,7 +35,7 @@ class DogCat(data.Dataset):
             # 测试集和验证集不需要数据增强
             if self.mode == "test" or self.mode == "val":
                 self.transforms = T.Compose([
-                    T.Scale(224),
+                    T.Resize(224),
                     T.CenterCrop(224),
                     T.ToTensor(),
                     normalize
@@ -43,7 +43,7 @@ class DogCat(data.Dataset):
             # 训练集需要数据增强
             else:
                 self.transforms = T.Compose([
-                    T.Scale(256),
+                    T.Resize(256),
                     T.RandomResizedCrop(224),
                     T.RandomHorizontalFlip(),
                     T.ToTensor(),

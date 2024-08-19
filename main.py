@@ -2,7 +2,6 @@ import os.path
 import models
 import torch as t
 from config import opt
-from config import DefaultConfig
 from data.dataset import DogCat
 from torch.utils.data import DataLoader
 from torchnet import meter
@@ -21,7 +20,7 @@ def train(**kwargs):
     vis = Visualizer(opt.env)
 
     # step1:定义网络模型
-    model = getattr(models, opt.model)
+    model = getattr(models, opt.model)()
     if opt.load_model_path:
         model.load(opt.load_model_path)
     if opt.use_gpu:
@@ -38,7 +37,8 @@ def train(**kwargs):
     # step3:定义损失函数和优化器
     criterion = t.nn.CrossEntropyLoss()
     lr = opt.lr
-    optimizer = t.optim.Adam(model.parameters(), lr=lr, weight_decay=opt.weight_decay)
+    weight_decay = opt.weight_decay
+    optimizer = model.get_optimizer(lr=lr, weight_decay=weight_decay)
 
     # step4:计算指标，如平滑处理后之后的损失，还有混淆矩阵
     loss_meter = meter.AverageValueMeter()
