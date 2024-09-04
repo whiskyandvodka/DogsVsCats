@@ -1,4 +1,4 @@
-from torchvision.models import squeezenet1_1
+from torchvision.models import squeezenet1_1, SqueezeNet1_1_Weights
 from models.basic_module import BasicModule
 from torch import nn
 from torch.optim import Adam
@@ -8,7 +8,7 @@ class SqueezeNet(BasicModule):
     def __init__(self, num_classes=2):
         super(SqueezeNet, self).__init__()
         self.model_name = 'squeezenet'
-        self.model = squeezenet1_1(pretrained=True)
+        self.model = squeezenet1_1(weights=SqueezeNet1_1_Weights.DEFAULT)
         # 修改 原始的num_class: 预训练模型是1000分类
         self.model.num_classes = num_classes
         self.model.classifier =   nn.Sequential(

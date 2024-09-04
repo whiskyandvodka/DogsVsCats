@@ -1,8 +1,11 @@
 import os
+from config import opt
 from PIL import Image
 from torch.utils import data
 import numpy as np
+from torch.utils.data import DataLoader
 from torchvision import transforms as T
+from tqdm import tqdm
 
 
 class DogCat(data.Dataset):
@@ -14,6 +17,7 @@ class DogCat(data.Dataset):
         :param mode: 用来划分训练、测试和验证
         """
         assert mode in ["train", "test", "val"]
+
         self.mode = mode
         imgs = [os.path.join(root, img) for img in os.listdir(root)]
 
@@ -25,8 +29,8 @@ class DogCat(data.Dataset):
 
         #  划分训练集、验证集，验证：训练 = 3：7
         if self.mode == "test": self.imgs = imgs
-        if self.mode == "train": self.imgs = imgs[:int(0.7 * imgs_num)]
-        if self.mode == "val": self.imgs = imgs[int(0.7 * imgs_num):]
+        if self.mode == "train": self.imgs = imgs[:int(0.01 * imgs_num)]
+        if self.mode == "val": self.imgs = imgs[int(0.01 * imgs_num):int(0.02 * imgs_num)]
 
         if transforms is None:
             # 数据转换操作，测试验证和训练的数据转换有所区别
@@ -49,8 +53,8 @@ class DogCat(data.Dataset):
                     T.ToTensor(),
                     normalize
                 ])
-        else:
-            self.transforms = transforms
+        # else:
+        #     self.transforms = transforms
 
     def __getitem__(self, index):
         """
@@ -65,7 +69,11 @@ class DogCat(data.Dataset):
         else:
             label = 1 if "dog" in img_path.split('/')[-1] else 0
         data = Image.open(img_path)
-        data = self.transforms(data)
+        try:
+            data = self.transforms(data)
+        except RuntimeError:
+            print(img_path)
+
         return data, label
 
     def __len__(self):
@@ -75,3 +83,17 @@ class DogCat(data.Dataset):
         """
         return len(self.imgs)
 
+
+if __name__ == '__main__':
+    train_data = DogCat(opt.train_data_root, mode="train")
+
+    img, label = train_data[0]
+    # for img, label in tqdm(train_data):
+    #     pass
+    #     # print((img.shape, label))
+
+    train_dataloader = DataLoader(train_data, opt.batch_size,
+                                  shuffle=True, num_workers=opt.num_workers)
+    for ii, (data, label) in enumerate(tqdm(train_dataloader)):
+        # print(data.shape, label.item())
+        pass

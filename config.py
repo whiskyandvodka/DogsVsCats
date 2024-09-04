@@ -11,7 +11,7 @@ class DefaultConfig(object):
 
     batch_size = 1          # batch_size大小
     use_gpu = False
-    num_workers = 2
+    num_workers = 0
     print_freq = 20         # 打印信息的间隔轮数
 
     debug_file = '/tmp/debug'
@@ -33,6 +33,8 @@ class DefaultConfig(object):
             if not hasattr(self, k):
                 warnings.warn("Warning: opt has not attribute %s" % k)
                 setattr(self, k, v)
+
+        opt.device = t.device('cuda') if opt.use_gpu else t.device('cpu')
 
         # 打印配置信息
         print('user config:')

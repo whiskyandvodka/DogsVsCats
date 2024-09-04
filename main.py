@@ -43,14 +43,14 @@ def train(**kwargs):
     # step4:计算指标，如平滑处理后之后的损失，还有混淆矩阵
     loss_meter = meter.AverageValueMeter()
     confusion_matrix = meter.ConfusionMeter(2)
-    previous_loss = 1e100
+    previous_loss = 1e10
 
     # 训练
     for epoch in range(opt.max_epoch):
         loss_meter.reset()
         confusion_matrix.reset()
 
-        for ii, (data, label) in tqdm(enumerate(train_dataloader)):
+        for ii, (data, label) in enumerate(tqdm(train_dataloader)):
 
             # 训练模型参数
             input = data.to(opt.device)
@@ -71,7 +71,7 @@ def train(**kwargs):
 
                 # 如果需要，则可以进入调试模式
                 if os.path.exists(opt.debug_file):
-                    import ipdb
+                    import ipdb;
                     ipdb.set_trace()
 
         model.save()
@@ -150,11 +150,11 @@ def test(**kwargs):
     return results
 
 
-def write_csv(results,file_name):
+def write_csv(results, file_name):
     import csv
-    with open(file_name,'w') as f:
+    with open(file_name, 'w') as f:
         writer = csv.writer(f)
-        writer.writerow(['id','label'])
+        writer.writerow(['id', 'label'])
         writer.writerows(results)
 
 
