@@ -11,7 +11,7 @@ class SqueezeNet(BasicModule):
         self.model = squeezenet1_1(weights=SqueezeNet1_1_Weights.DEFAULT)
         # 修改 原始的num_class: 预训练模型是1000分类
         self.model.num_classes = num_classes
-        self.model.classifier =   nn.Sequential(
+        self.model.classifier = nn.Sequential(
             nn.Dropout(p=0.5),
             nn.Conv2d(512, num_classes, 1),
             nn.ReLU(inplace=True),

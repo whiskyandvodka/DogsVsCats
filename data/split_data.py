@@ -36,33 +36,33 @@ def split_data(main_dir, training_dir, validation_dir, test_dir=None,
 
     class_name = main_dir.split('/')[-1]
 
-    for ii, element in tqdm(enumerate(train)):
+    for ii, element in enumerate(tqdm(train)):
         copyfile(os.path.join(main_dir, element), os.path.join(training_dir, (class_name.lower() + '.' + element)))
 
-    for ii, element in tqdm(enumerate(validation)):
+    for ii, element in enumerate(tqdm(validation)):
         copyfile(os.path.join(main_dir, element), os.path.join(validation_dir, (class_name.lower() + '.' + element)))
 
     if include_test_split:
-        for ii, element in tqdm(enumerate(test)):
+        for ii, element in enumerate(tqdm(test)):
             copyfile(os.path.join(main_dir, element), os.path.join(test_dir, element))
 
     print("Split successful!")
 
 
-if __name__ == "__main__":
-    split_data(
-        r"d:/Deep_Learning\dateset\DogsVsCats\PetImages\Dog".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\training".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\val".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\test".replace('\\', '/'),
-        include_test_split=False, split_size=0.7
-    )
-
-    split_data(
-        r"d:/Deep_Learning\dateset\DogsVsCats\PetImages\Cat".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\training".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\val".replace('\\', '/'),
-        r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\test".replace('\\', '/'),
-        include_test_split=False, split_size=0.7
-    )
+# if __name__ == "__main__":
+#     split_data(
+#         r"d:/Deep_Learning\dateset\DogsVsCats\PetImages\Dog".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\training".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\val".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\test".replace('\\', '/'),
+#         include_test_split=False, split_size=0.7
+#     )
+#
+#     split_data(
+#         r"d:/Deep_Learning\dateset\DogsVsCats\PetImages\Cat".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\training".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\val".replace('\\', '/'),
+#         r"d:\Deep_Learning\workspace\PyTorch_project\Dogs_Vs_Cats\cats-v-dogs\test".replace('\\', '/'),
+#         include_test_split=False, split_size=0.7
+#     )
 

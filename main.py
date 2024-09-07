@@ -48,7 +48,7 @@ def train(**kwargs):
     # 训练
     for epoch in range(opt.max_epoch):
         loss_meter.reset()
-        confusion_matrix.reset()
+        # confusion_matrix.reset()
 
         for ii, (data, label) in enumerate(tqdm(train_dataloader)):
 
@@ -64,6 +64,10 @@ def train(**kwargs):
 
             # 更新统计指标以及可视化
             loss_meter.add(loss.item())
+            # print("train_score.shape = ", score.shape)
+            # print("train_score = ", score)
+            # print("train_target.shape = ", target.shape)
+            # print("train_target = ", target)
             confusion_matrix.add(score.detach(), target.detach())
 
             if ii % opt.print_freq == opt.print_freq - 1:
@@ -76,7 +80,7 @@ def train(**kwargs):
 
         model.save()
 
-        # 计算验证集上的指标以及可视化
+        # # 计算验证集上的指标以及可视化
         val_cm, val_accuracy = val(model, val_dataloader)
         vis.plot('val_accuracy', val_accuracy)
         vis.log("epoch:{epoch}, lr={lr}, loss:{loss}, train_cm:{train_cm}, val_cm:{val_cm}".format(
@@ -108,7 +112,14 @@ def val(model, dataloder):
     for ii, (val_input, label) in tqdm(enumerate(dataloder)):
         val_input = val_input.to(opt.device)
         score = model(val_input)
-        confusion_matrix.add(score.detach().squeeze(), label.long())
+
+        # print("val_score.shape = ", score.shape)
+        # print("val_score = ", score)
+        # print("val_score.squeeze.shape = ", score.detach().squeeze().shape)
+        # print("val_label.shape = ", label.long().shape)
+        # print("val_label = ", label.long())
+
+        confusion_matrix.add(score.detach(), label.detach().type(t.LongTensor))
 
     # 将模型恢复为训练模式
     model.train()
@@ -156,7 +167,6 @@ def write_csv(results, file_name):
         writer = csv.writer(f)
         writer.writerow(['id', 'label'])
         writer.writerows(results)
-
 
 def help():
     """

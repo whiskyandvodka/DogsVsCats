@@ -29,8 +29,8 @@ class DogCat(data.Dataset):
 
         #  划分训练集、验证集，验证：训练 = 3：7
         if self.mode == "test": self.imgs = imgs
-        if self.mode == "train": self.imgs = imgs[:int(0.01 * imgs_num)]
-        if self.mode == "val": self.imgs = imgs[int(0.01 * imgs_num):int(0.02 * imgs_num)]
+        if self.mode == "train": self.imgs = imgs[:int(0.1 * imgs_num)]
+        if self.mode == "val": self.imgs = imgs[int(0.05 * imgs_num):int(0.02 * imgs_num)]
 
         if transforms is None:
             # 数据转换操作，测试验证和训练的数据转换有所区别
@@ -73,6 +73,10 @@ class DogCat(data.Dataset):
             data = self.transforms(data)
         except RuntimeError:
             print(img_path)
+            pass
+        except TypeError:
+            print(img_path)
+            pass
 
         return data, label
 
@@ -88,12 +92,12 @@ if __name__ == '__main__':
     train_data = DogCat(opt.train_data_root, mode="train")
 
     img, label = train_data[0]
-    # for img, label in tqdm(train_data):
-    #     pass
-    #     # print((img.shape, label))
+    for img, label in tqdm(train_data):
+        pass
+        # print((img.shape, label))
 
     train_dataloader = DataLoader(train_data, opt.batch_size,
                                   shuffle=True, num_workers=opt.num_workers)
-    for ii, (data, label) in enumerate(tqdm(train_dataloader)):
-        # print(data.shape, label.item())
-        pass
+
+    # for ii, (data, label) in enumerate(tqdm(train_dataloader)):
+    #     pass

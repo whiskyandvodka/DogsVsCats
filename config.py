@@ -17,7 +17,7 @@ class DefaultConfig(object):
     debug_file = '/tmp/debug'
     result_file = 'result.csv'
 
-    max_epoch = 10          # 训练轮数
+    max_epoch = 20          # 训练轮数
     lr = 0.001                # 初始化学习率
     lr_decay = 0.5         # 学习率衰减，lr = lr * lr_decay
     weight_decay = 0e-5
